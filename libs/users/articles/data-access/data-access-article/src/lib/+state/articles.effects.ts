@@ -17,9 +17,9 @@ export const publishArticle$ = createEffect(
     return actions$.pipe(
       ofType(articlesActions.publishArticle),
       switchMap(({ article }) =>
-        apiService.post<void, CreateArticle>('/articles', article).pipe(
+        apiService.post<Article, CreateArticle>('/articles', article).pipe(
           tap(() => router.navigate(['/articles'])),
-          map(() => articlesActions.publishArticleSuccess),
+          map((article) => articlesActions.publishArticleSuccess({ article })),
           catchError((error) => {
             console.error('Error', error);
             return of(articlesActions.publishArticleFailed({ error }));
@@ -28,7 +28,7 @@ export const publishArticle$ = createEffect(
       ),
     );
   },
-  { functional: true, dispatch: false },
+  { functional: true },
 );
 
 export const loadArticles$ = createEffect(

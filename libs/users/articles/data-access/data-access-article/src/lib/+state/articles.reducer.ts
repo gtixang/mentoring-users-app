@@ -6,6 +6,8 @@ import { Article } from '@users/shared/data-access-models';
 
 import { articlesActions } from './articles.actions';
 
+export const ARTICLE_FEATURE_KEY = 'articles';
+
 export interface ArticlesState extends EntityState<Article> {
   status: LoadingStatus;
 }
@@ -17,9 +19,21 @@ const initialArticlesState: ArticlesState = articlesAdapter.getInitialState({
 });
 
 export const articlesFeature = createFeature({
-  name: 'articles',
+  name: ARTICLE_FEATURE_KEY,
   reducer: createReducer(
     initialArticlesState,
+
+    on(articlesActions.publishArticle, (state) => ({
+      ...state,
+      status: 'loading' as const,
+    })),
+    on(articlesActions.publishArticleSuccess, (state, { article }) => {
+      return articlesAdapter.addOne({ ...article }, { ...state, status: 'loaded' as const });
+    }),
+    on(articlesActions.publishArticleFailed, (state) => ({
+      ...state,
+      status: 'error' as const,
+    })),
 
     on(articlesActions.loadArticles, (state) => ({
       ...state,
@@ -29,15 +43,15 @@ export const articlesFeature = createFeature({
     on(articlesActions.loadArticlesSuccess, (state, { articles }) =>
       articlesAdapter.setAll(articles, { ...state, status: 'loaded' as const }),
     ),
-    on(articlesActions.editArticleSuccess, (state, { articles }) =>
-      articlesAdapter.updateOne(
-        {
-          id: articles.id,
-          changes: articles,
-        },
-        state,
-      ),
-    ),
+    // on(articlesActions.editArticleSuccess, (state, { articles }) =>
+    //   articlesAdapter.updateOne(
+    //     {
+    //       id: articles.id,
+    //       changes: articles,
+    //     },
+    //     state,
+    //   ),
+    // ),
     on(articlesActions.loadArticlesFailed, (state) => ({
       ...state,
       status: 'error' as const,

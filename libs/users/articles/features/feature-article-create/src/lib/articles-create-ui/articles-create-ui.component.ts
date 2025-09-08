@@ -17,10 +17,10 @@ import { ErrorStateMatcher } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { Router } from '@angular/router';
+import BlotFormatter from '@enzedonline/quill-blot-formatter2';
 import { TranslateModule } from '@ngx-translate/core';
 import { QuillModule } from 'ngx-quill';
 import Quill from 'quill';
-import BlotFormatter from 'quill-blot-formatter';
 
 import { ArticlesFacade, CreateArticle } from '@users/articles/data-access-article';
 import { Article } from '@users/shared/data-access-models';
@@ -52,6 +52,7 @@ Quill.register('modules/blotFormatter', BlotFormatter);
     MatInputModule,
     TranslateModule,
   ],
+  providers: [{ provide: ErrorStateMatcher, useClass: MyErrorStateMatcher }],
   templateUrl: './articles-create-ui.component.html',
   styleUrls: ['./articles-create-ui.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -60,17 +61,16 @@ export class ArticlesCreateUiComponent {
   private _vm!: ArticlesCreateVm;
   private readonly router = inject(Router);
   private readonly articleFacade = inject(ArticlesFacade);
+  public formSubmitted = false;
 
   public formGroup = new FormGroup({
     textEditor: new FormControl('', {
       validators: [Validators.required, this.validateWithClearTegs()],
     }),
     title: new FormControl('', {
-      validators: [Validators.required, Validators.minLength(5), Validators.maxLength(66)],
+      validators: [Validators.required, Validators.minLength(5), Validators.maxLength(22)],
     }),
   });
-  public formSubmitted = false;
-  public matcher = new MyErrorStateMatcher();
   public quillEditorModules = {
     toolbar: [
       [{ font: [] }],
@@ -114,7 +114,6 @@ export class ArticlesCreateUiComponent {
   }
 
   public onSubmit() {
-    // event.preventDefault();
     this.formSubmitted = true;
     this.formGroup.markAllAsTouched();
     if (this.formGroup.valid) {

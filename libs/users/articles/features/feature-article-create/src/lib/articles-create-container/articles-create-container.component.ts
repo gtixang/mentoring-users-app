@@ -2,11 +2,8 @@ import { ChangeDetectionStrategy, Component, inject } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { LetDirective } from '@ngrx/component';
 import { Store } from '@ngrx/store';
-import { map, Observable, of } from 'rxjs';
 
-import { ConfirmDialogService } from '@shared/ui-confirm-dialog';
-import { DeactivatableComponent } from '@shared/util-router';
-import { articlesActions, articleSelectors, CreateArticle } from '@users/articles/data-access-article';
+import { articlesActions, articleSelectors, ArticlesFacade, CreateArticle } from '@users/articles/data-access-article';
 import { Article } from '@users/shared/data-access-models';
 
 import { ArticlesCreateUiComponent } from '../articles-create-ui/articles-create-ui.component';
@@ -18,10 +15,10 @@ import { ArticlesCreateUiComponent } from '../articles-create-ui/articles-create
   styleUrls: ['./articles-create-container.component.scss'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class ArticlesCreateContainerComponent implements DeactivatableComponent {
+export class ArticlesCreateContainerComponent {
   private readonly activatedRoute = inject(ActivatedRoute);
+  private readonly articleFacade = inject(ArticlesFacade);
   private readonly store = inject(Store);
-  private readonly confirmDialogService = inject(ConfirmDialogService);
 
   private readonly articleId = this.activatedRoute.snapshot.queryParamMap.get('id');
 
@@ -30,6 +27,8 @@ export class ArticlesCreateContainerComponent implements DeactivatableComponent 
   readonly isEdit = Boolean(this.articleId);
   readonly editingArticle$ = this.store.select(articleSelectors.selectArticleForEdit);
 
+  //canDeactivate: () => boolean | Observable<boolean>;
+
   constructor() {
     if (Number(this.articleId)) {
       this.getArticle(Number(this.articleId));
@@ -37,28 +36,28 @@ export class ArticlesCreateContainerComponent implements DeactivatableComponent 
   }
 
   onPublishArticle(article: CreateArticle) {
-    console.log(article);
+    this.articleFacade.publishArticle(article);
   }
 
   onFormChange(isFormChanged: boolean) {
     this.isFormChanged = isFormChanged;
   }
 
-  canDeactivate(): Observable<boolean> {
-    if (!this.isFormChanged) {
-      return of(true);
-    }
-
-    return this.confirmDialogService
-      .open({
-        title: 'Подтверждение выхода',
-        content: 'Вы уверены, что хотите покинуть данную страницу?<br>Несохранённые изменения будут утеряны!',
-        primaryButtonText: 'Покинуть страницу',
-        secondaryButtonText: 'Остаться',
-      })
-      .afterClosed()
-      .pipe(map(Boolean));
-  }
+  // canDeactivate(): Observable<boolean> {
+  //   if (!this.isFormChanged) {
+  //     return of(true);
+  //   } else {
+  //     return this.confirmDialogService
+  //       .open({
+  //         title: 'Подтверждение выхода',
+  //         content: 'Вы уверены, что хотите покинуть данную страницу?<br>Несохранённые изменения будут утеряны!',
+  //         primaryButtonText: 'Покинуть страницу',
+  //         secondaryButtonText: 'Остаться',
+  //       })
+  //       .afterClosed()
+  //       .pipe(map(Boolean));
+  //   }
+  // }
 
   private getArticle(id: Article['id']) {
     this.store.dispatch(articlesActions.getArticleForEdit({ id }));

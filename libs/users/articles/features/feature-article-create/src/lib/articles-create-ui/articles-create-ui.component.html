@@ -8,7 +8,6 @@
         formControlName="title"
         class="input-field"
         matInput
-        [errorStateMatcher]="matcher"
       />
       <mat-error *ngIf="formSubmitted && formGroup.get('title')?.hasError">
         {{ 'ARTICLES.ARTICLE.HEADER_SIZE' | translate }}
@@ -33,13 +32,10 @@
     </p>
 
     <div class="button">
-      <button
-        color="primary"
-        mat-raised-button
-        (click)="onSubmit()">
+      <button color="primary" mat-raised-button (click)="onSubmit()">
         {{ vm.editMode ? ('ARTICLES.ARTICLE.EDIT' | translate) : ('ARTICLES.ARTICLE.POST' | translate) }}
       </button>
-      <button mat-raised-button (click)="onCancel()" color="primary">{{ ('ARTICLES.ARTICLE.CLOSE' | translate) }}</button>
+      <button mat-raised-button (click)="onCancel()" color="primary">{{ 'ARTICLES.ARTICLE.CLOSE' | translate }}</button>
     </div>
   </form>
 </div>

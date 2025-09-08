@@ -8,7 +8,7 @@ export const articlesActions = createActionGroup({
   source: 'Article',
   events: {
     publishArticle: props<{ article: CreateArticle }>(),
-    publishArticleSuccess: emptyProps(),
+    publishArticleSuccess: props<{ article: Article }>(),
     publishArticleFailed: props<{ error: Error }>(),
 
     editArticle: props<{ articleData: CreateArticle; id: number }>(),
